@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta property="og:title" content="아이들 (G)I-DLE 팬명록 "/>
+    <meta property="og:description" content="응원 한마디 남기고 가세요!"/>
+    <meta property="og:image" content="https://media.bunjang.co.kr/product/202726624_%7Bcnt%7D_1666163152_w%7Bres%7D.jpg"/>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
+
+    <title>초미니홈피 - 팬명록</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            font-family: 'Gowun Dodum', sans-serif;
+        }
+
+        .mypic {
+            width: 100%;
+            height: 300px;
+
+            background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://media.bunjang.co.kr/product/202726624_%7Bcnt%7D_1666163152_w%7Bres%7D.jpg');
+            background-position: center 30%;
+            background-size: cover;
+
+            color: white;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mypost {
+            width: 95%;
+            max-width: 500px;
+            margin: 20px auto 20px auto;
+
+            box-shadow: 0px 0px 3px 0px red;
+            padding: 20px;
+        }
+
+        .mypost > button {
+            margin-top: 15px;
+        }
+
+        .update_mypost {
+            width: 95%;
+            max-width: 500px;
+            margin: 20px auto 20px auto;
+
+            box-shadow: 0px 0px 3px 0px gray;
+            padding: 20px;
+        }
+
+        .update_mypost > button {
+            margin-top: 15px;
+        }
+
+        .mycards {
+            width: 95%;
+            max-width: 500px;
+            margin: auto;
+        }
+
+        .mycards > .card {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .card-body {
+            display: flex;
+            flex-direction: row;
+            justify-content: left;
+            align-items: center;
+        }
+        
+        .right-box > button {
+            float:right;
+            margin-left: 15px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+        .row {
+            margin-top: 10px;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+        .col > button {
+            float:right;
+            margin-left: 15px;
+            margin-bottom: 10px;
+            margin-right: 10px;
+        }
+
+        /*.card-body > button {*/
+        /*    margin-left: auto;*/
+        /*}*/
+    </style>
+    <script>
+        function remove_comment(num) {
+            $.ajax({
+                type: "DELETE",
+                url: "/homework/click",
+                data: {num_give: num},
+                success: function (response) {
+                    alert(response["msg"])
+                    window.location.reload()
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            set_temp()
+            show_comment()
+        });
+
+        function set_temp() {
+            $.ajax({
+                type: "GET",
+                url: "http://spartacodingclub.shop/sparta_api/weather/seoul",
+                data: {},
+                success: function (response) {
+                    $('#temp').text(response['temp'])
+                }
+            })
+        }
+
+        function save_comment() {
+            let name = $('#name').val()
+            let comment = $('#comment').val()
+
+            $.ajax({
+                type: 'POST',
+                url: '/homework',
+                data: {name_give:name, comment_give:comment},
+                success: function (response) {
+                    alert(response['msg'])
+                    window.location.reload()
+                }
+            })
+        }
+
+        function show_comment() {
+            $.ajax({
+                type: "GET",
+                url: "/homework",
+                data: {},
+                success: function (response) {
+                    let rows = response['fanbooks']
+                    console.log(rows)
+
+                    for(let i=0; i<rows.length; i++){
+                        let num = rows[i]['num']
+                        let name = rows[i]['name']
+                        let comment = rows[i]['comment']
+
+                        let temp_html = `<div id="cards-box" class="card">
+                                            <div class="row">
+                                                <blockquote class="blockquote mb-0">
+                                                    <p>${comment}</p>
+                                                    <footer class="blockquote-footer">${name}</footer>
+                                                </blockquote>
+                                                <div class="col">
+                                                    <button onclick="remove_comment(${num})" type="button" class="btn btn-outline-dark">삭제</button>
+                                                    <button onclick="show_form(${num})" type="button" class="btn btn-outline-dark">수정</button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    <div id="show-form-${num}" style="display:none;" class="update_mypost">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" id="update-name-${num}" placeholder="닉네임">
+                                            <label for="floatingInput">닉네임</label>
+                                        </div>
+                                        <div class="form-floating">
+                                        <textarea class="form-control" placeholder="Leave a comment here" id="update-comment-${num}"
+                                          style="height: 100px"></textarea>
+                                            <label for="floatingTextarea2">응원댓글</label>
+                                        </div>
+                                        <button onclick="override_comment(${num})" type="button" class="btn btn-outline-dark">수정완료</button>
+                                    </div>`
+                            $('#comment-list').append(temp_html)
+
+                    }
+                }
+            });
+        }
+
+        function show_form(num) {
+            let show_id = '#show-form-' + num
+            $(`${show_id}`).show();
+
+            $.ajax({
+                type: "GET",
+                url: "/homework",
+                data: {},
+                success: function (response) {
+                    let rows = response['fanbooks']
+
+                    for (let i = 0; i < rows.length; i++) {
+                        let cur_num = rows[i]['num']
+                        let cur_name = rows[i]['name']
+                        let cur_comment = rows[i]['comment']
+
+                        if(cur_num === num) {
+                            name = cur_name
+                            comment = cur_comment
+                        }
+                    }
+
+                    let commentId = '#update-comment-'+ num
+                    let nameId = '#update-name-'+ num
+
+                    $(commentId).val(comment)
+                    $(nameId).val(name)
+                }
+            });
+        }
+
+        function override_comment(num) {
+            let commentId = '#update-comment-'+ num
+            let nameId = '#update-name-'+ num
+            let comment = $(commentId).val()
+            let name = $(nameId).val()
+
+
+            $.ajax({
+                type: "PUT",
+                url: "/homework",
+                data: {num_give: num, update_comment: comment, update_name: name},
+                success: function (response) {
+                    alert(response["msg"])
+                    window.location.reload()
+                }
+            });
+
+            let hide_id = '#show-form-' + num
+            $(`${hide_id}`).hide();
+        }
+    </script>
+</head>
+<body>
+<div class="mypic">
+    <h1>아이들 (G)I-DLE 팬명록</h1>
+    <p>현재기온: <span id="temp">36</span>도</p>
+</div>
+
+<div class="mypost">
+    <div class="form-floating mb-3">
+        <input style="box-shadow: 0px 0px 3px 0px red" type="text" class="form-control" id="name" placeholder="닉네임">
+        <label for="floatingInput" style="color: red">닉네임</label>
+    </div>
+    <div class="form-floating" style="box-shadow: 0px 0px 3px 0px red">
+    <textarea class="form-control" placeholder="Leave a comment here" id="comment"
+          style="height: 100px"></textarea>
+        <label for="floatingTextarea2" style="color: red">응원댓글</label>
+    </div>
+    <button onclick="save_comment()" type="button" class="btn btn-danger">응원 남기기</button>
+</div>
+
+<div id="comment-list" class="mycards">
+<!--        <div id="cards-box" class="card">-->
+<!--            <div class="row">-->
+<!--                <blockquote class="blockquote mb-0">-->
+<!--                    <p>새로운 앨범 너무 멋져요! 앞으로의 활동도 응원합니다.-->
+<!--                    항상 열심히 해줘서 고마워</p>-->
+<!--                    <footer class="blockquote-footer">호빵맨</footer>-->
+<!--                </blockquote>-->
+<!--                <div class="col">-->
+<!--                    <button onclick="remove_comment(1)" type="button" class="btn btn-outline-dark">삭제</button>-->
+<!--                    <button onclick="remove_comment(1)" type="button" class="btn btn-outline-dark">수정</button>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+
+<!--    <div class="update_mypost">-->
+<!--        <div class="form-floating mb-3">-->
+<!--            <input type="text" class="form-control" id="update_name" placeholder="닉네임">-->
+<!--            <label for="floatingInput">닉네임</label>-->
+<!--        </div>-->
+<!--        <div class="form-floating">-->
+<!--        <textarea class="form-control" placeholder="Leave a comment here" id="update_comment"-->
+<!--          style="height: 100px"></textarea>-->
+<!--            <label for="floatingTextarea2">응원댓글</label>-->
+<!--        </div>-->
+<!--        <button onclick="save_comment()" type="button" class="btn btn-outline-dark">수정완료</button>-->
+<!--    </div>-->
+
+</div>
+</body>
+</html>
